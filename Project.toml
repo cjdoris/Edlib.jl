@@ -9,3 +9,5 @@ Edlib_jll = "9cc87b63-894b-53d6-8750-e9bc5869edd9"
 
 [compat]
 julia = "1.1"
+CEnum = "0.2"
+Edlib_jll = "1.2.6"
