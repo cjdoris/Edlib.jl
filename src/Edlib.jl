@@ -122,26 +122,21 @@ end
 """
     align(query, target; ...)
 
-Align the `query` and `target` strings. Inputs are as for [`edit_distance`](@ref).
-
-The available options are:
-- `max_distance`: The maximum edit distance to compute. If the actual edit distance is larger, it is reported as `missing`.
-- `mode`: One of `:global` (standard edit distance, the default), `:prefix` (gaps after the query don't count), `:infix` (gaps before and after the query don't count).
-- `equalities`: A vector of 2-tuples of characters which are considered equal. If you are calling `align` many times, this should be a `Vector{Tuple{UInt8,UInt8}}` to avoid conversion.
+Align the `query` and `target` strings, returning the edit distance, start and end locations of opimal alignments, and the character alignment of the first one. Inputs are as for [`edit_distance`](@ref).
 """
 function align(query, target, task=Val(C_TASK_ALIGNMENT); max_distance=missing, mode=C_MODE_GLOBAL, equalities=nothing)
     return _align(query, target, max_distance, mode, task, equalities)
 end
 
 """
-    edit_distance(query, target; max_distance=nothing, mode=:global, equalities=nothing)
+    edit_distance(query, target; max_distance=missing, mode=:global, equalities=nothing)
 
 The edit distance between `query` and `target` strings (or vectors of bytes). Note that the input is treated as unencoded bytes.
 
 The available options are:
 - `max_distance`: The maximum edit distance to compute. If the actual edit distance is larger, it is reported as `missing`.
 - `mode`: One of `:global` (standard edit distance, the default), `:prefix` (gaps after the query don't count), `:infix` (gaps before and after the query don't count).
-- `equalities`: A vector of 2-tuples of characters which are considered equal. If you are calling `align` many times, this should be a `Vector{Tuple{UInt8,UInt8}}` to avoid conversion.
+- `equalities`: A vector of 2-tuples of characters which are considered equal. If you are calling this function many times, this should be a `Vector{Tuple{UInt8,UInt8}}` to avoid conversion.
 
 If `max_distance` is given and the actual edit distance is larger, `missing` is returned.
 """
