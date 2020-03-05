@@ -22,19 +22,18 @@ search: Edlib readlink readline readlines
   Also see cigar for producing a cigar string from an alignment.
 
 julia> @btime Edlib.edit_distance("missing", "mississippi")
-  1.157 μs (2 allocations: 116 bytes)
+  1.230 μs (2 allocations: 116 bytes)
 6
 
 julia> @btime Edlib.edit_distance("missing", "mississippi", mode=:infix)
-  1.264 μs (2 allocations: 124 bytes)
+  1.310 μs (2 allocations: 124 bytes)
 2
 
+julia> @btime Edlib.alignment_locations("missing", "mississippi", mode=:infix)
+  3.937 μs (8 allocations: 424 bytes)
+(distance = 2, ranges = UnitRange{Int32}[1:5, 1:6, 1:7])
+
 julia> @btime Edlib.alignment("missing", "mississippi", mode=:infix)
-  5.477 μs (5 allocations: 368 bytes)
-(distance = 2, range = 1:5, alignment = Edlib.Alignment[Edlib.MATCH, Edlib.MATCH, Edlib.MATCH, Edlib.MATCH, Edlib.MATCH, Edlib.INSERT_TARGET, Edlib.INSERT_TARGET])
-
-julia> @btime Edlib.cigar(ans.alignment, extended=true)
-  423.920 ns (1 allocation: 32 bytes)
-"5=2I"
-
+  6.000 μs (8 allocations: 448 bytes)
+(distance = 2, range = 1:5, alignment = Edlib.Alignment[Edlib.MATCH, Edlib.MATCH, Edlib.MATCH, Edlib.MATCH, Edlib.MATCH, Edlib.INSERT_TARGET, Edlib.INSERT_TARGET], cigar = "5=2I")
 ```

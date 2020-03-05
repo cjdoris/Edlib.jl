@@ -163,25 +163,25 @@ end
 """
     alignment_locations(query, target; opts...)
 
-The edit distance and vectors of start and end locations of optimal alignments. Inputs are as for [`edit_distance`](@ref).
+The edit distance and vectors of ranges of optimal alignments. Inputs are as for [`edit_distance`](@ref).
 """
 function alignment_locations(query, target; opts...)
     r = align(query, target, Val(C_TASK_LOCATIONS); opts...)
-    return ismissing(r) ? missing : (distance=r.distance, starts=r.starts, ends=r.ends)
+    return ismissing(r) ? missing : (distance=r.distance, ranges=map(:, r.starts, r.ends))
 end
 
 """
     alignment(query, target; opts...)
 
-The edit distance, and the range and character alignments of an optimal alignment. Inputs are as for [`edit_distance`](@ref).
+The edit distance, and the range, character alignments and cigar of an optimal alignment. Inputs are as for [`edit_distance`](@ref).
 """
 function alignment(query, target; opts...)
     r = align(query, target, Val(C_TASK_ALIGNMENT); opts...)
-    return ismissing(r) ? missing : (distance=r.distance, range=Int(r.starts[1]):Int(r.ends[1]), alignment=r.alignment)
+    return ismissing(r) ? missing : (distance=r.distance, range=Int(r.starts[1]):Int(r.ends[1]), alignment=r.alignment, cigar=cigar(r.alignment, extended=true))
 end
 
 """
-    cigar(a::Vector{Alignment}; extended=false)
+    cigar(a::Vector{Alignment}; extended=true)
     cigar(query, target; extended=false, ...)
 
 The cigar string of the given `Vector{Alignment}` (e.g. as returned from `align` or `alignment`).
@@ -190,7 +190,7 @@ It consists of pairs of multiplicities followed by a character `I` (inerstion), 
 
 The second form computes the cigar string for the alignment of `query` and `target`. The inputs are as for [`edit_distance`](@ref).
 """
-function cigar(alignment::Vector{Alignment}; extended::Bool=false)
+function cigar(alignment::Vector{Alignment}; extended::Bool=true)
     format = extended ? C_CIGAR_EXTENDED : C_CIGAR_STANDARD
     c = ccall((:edlibAlignmentToCigar, libedlib), Cstring, (Ptr{Alignment}, Cint, CigarFormat), pointer(alignment), length(alignment), format)
     # TODO: is it possible to `unsafe_wrap` a string to avoid this allocation+free?
