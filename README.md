@@ -4,9 +4,9 @@ Julia bindings for the [edlib string alignment library](https://github.com/Marti
 
 Install: `] install https://github.com/cjdoris/Edlib.jl#master`.
 
-## Examples
+## Example usage
 
-```julia
+```
 julia> using BenchmarkTools, Edlib
 
 help?> Edlib
