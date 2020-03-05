@@ -2,11 +2,14 @@
 
 Julia bindings for the [edlib string alignment library](https://github.com/Martinsos/edlib), including fast edit distance.
 
-Install: `] add https://github.com/cjdoris/Edlib.jl#master`.
-
 ## Example usage
 
+See the docstrings for each function for further information.
+
 ```
+(v1.3) pkg> add https://github.com/cjdoris/Edlib.jl#master
+[...]
+
 julia> using BenchmarkTools, Edlib
 
 help?> Edlib
