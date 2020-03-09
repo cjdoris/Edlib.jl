@@ -7,7 +7,7 @@ Julia bindings for the [edlib string alignment library](https://github.com/Marti
 See the docstrings for each function for further information.
 
 ```
-(v1.3) pkg> add https://github.com/cjdoris/Edlib.jl#master
+(v1.3) pkg> add Edlib
 [...]
 
 julia> using BenchmarkTools, Edlib
