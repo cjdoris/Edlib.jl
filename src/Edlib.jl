@@ -7,7 +7,6 @@ Also see [`cigar`](@ref) for producing a cigar string from an alignment.
 """
 module Edlib
 
-using CEnum: @cenum
 using Edlib_jll: libedlib
 
 # C DEFINITIONS (hidden from the user)
@@ -15,9 +14,9 @@ using Edlib_jll: libedlib
 const C_STATUS_OK = 0
 const C_STATUS_ERROR = 1
 
-@cenum CAlignMode C_MODE_GLOBAL C_MODE_PREFIX C_MODE_INFIX
-@cenum CAlignTask C_TASK_DISTANCE C_TASK_LOCATIONS C_TASK_ALIGNMENT
-@cenum CigarFormat C_CIGAR_STANDARD C_CIGAR_EXTENDED
+@enum CAlignMode::Cint C_MODE_GLOBAL C_MODE_PREFIX C_MODE_INFIX
+@enum CAlignTask::Cint C_TASK_DISTANCE C_TASK_LOCATIONS C_TASK_ALIGNMENT
+@enum CigarFormat::Cint C_CIGAR_STANDARD C_CIGAR_EXTENDED
 
 const CEqualityPair = Tuple{Cchar, Cchar}
 
@@ -44,8 +43,16 @@ end
 
 @enum Alignment::Cuchar MATCH=0 INSERT_TARGET=1 INSERT_QUERY=2 MISMATCH=3
 
-stringarg(x::AbstractString) = convert(String, x)
-stringarg(x) = convert(Union{Vector{Cchar}, Vector{Cuchar}}, x)
+function stringarg(x::AbstractString)
+    sizeof(codeunit(x)) == 1 || error("code units of input strings must be bytes")
+    length(x) == ncodeunits(x) || error("input string contains multi-byte characters")
+    stringarg(codeunits(x))
+end
+
+stringarg(x::DenseVector{UInt8}) = x
+stringarg(x::DenseVector{Int8}) = x
+
+stringarg(x) = error("input must be a string or contiguous vector of bytes")
 
 function _align(query, target, max_distance, mode, task, equalities)
     # convert the query and target to something we can take a pointer from
@@ -81,7 +88,7 @@ function _align(query, target, max_distance, mode, task, equalities)
     end
     cconfig = CAlignConfig(c_max_distance, mode, task, c_equalities_ptr, c_equalities_num)
     # call the C function
-    r = ccall((:edlibAlign, libedlib), CAlignResult, (Ptr{Cchar}, Cint, Ptr{Cchar}, Cint, CAlignConfig), pointer(querystr), length(querystr), pointer(targetstr), length(targetstr), cconfig)
+    r = ccall((:edlibAlign, libedlib), CAlignResult, (Ptr{Cchar}, Cint, Ptr{Cchar}, Cint, CAlignConfig), pointer(querystr), sizeof(querystr), pointer(targetstr), sizeof(targetstr), cconfig)
     # check it worked
     r.status == C_STATUS_OK || error("edlib align returned status $(r.status)")
     # parse out the results
@@ -131,7 +138,7 @@ end
 """
     edit_distance(query, target; max_distance=missing, mode=:global, equalities=nothing)
 
-The edit distance between `query` and `target` strings (or vectors of bytes). Note that the input is treated as unencoded bytes.
+The edit distance between `query` and `target` strings, or vectors of bytes.
 
 The available options are:
 - `max_distance`: The maximum edit distance to compute. If the actual edit distance is larger, it is reported as `missing`.

@@ -1,13 +1,11 @@
 name = "Edlib"
 uuid = "397faa13-b53e-4cbf-b1cd-0b7e158e6587"
 authors = ["Christopher Doris <github.com/cjdoris>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
-CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
 Edlib_jll = "9cc87b63-894b-53d6-8750-e9bc5869edd9"
 
 [compat]
 julia = "1.1"
-CEnum = "0.2"
 Edlib_jll = "1.2.6"
